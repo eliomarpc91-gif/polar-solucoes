@@ -1,0 +1,49 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build-apk:
+    name: Compilar APK Android
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: android-actions/setup-android@v3
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('**/*.gradle*') }}
+      - name: Permissao scripts
+        run: chmod +x scripts/*.js || true
+      - name: Instalar dependencias
+        run: yarn install --frozen-lockfile
+      - name: Expo prebuild
+        run: npx expo prebuild --platform android --no-install --clean
+      - name: Permissao gradlew
+        run: chmod +x android/gradlew
+      - name: Compilar APK
+        working-directory: frontend/android
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
+      - name: Renomear APK
+        working-directory: frontend/android/app/build/outputs/apk/debug
+        run: mv app-debug.apk polar-solucoes-${{ github.run_number }}.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: polar-solucoes-apk
+          path: frontend/android/app/build/outputs/apk/debug/polar-solucoes-*.apk
+          retention-days: 30

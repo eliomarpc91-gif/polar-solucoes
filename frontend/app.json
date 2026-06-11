@@ -1,0 +1,69 @@
+{
+  "expo": {
+    "name": "Polar Soluções",
+    "slug": "polar-solucoes",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "polarsolucoes",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.polarsolucoes.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Mostrar previsão do tempo local",
+        "NSCameraUsageDescription": "Escanear QR Code e tirar fotos dos equipamentos",
+        "NSPhotoLibraryUsageDescription": "Anexar fotos dos equipamentos",
+        "NSPhotoLibraryAddUsageDescription": "Salvar fotos dos equipamentos"
+      }
+    },
+    "android": {
+      "package": "com.polarsolucoes.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#0A6EFF"
+      },
+      "edgeToEdgeEnabled": true,
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION", "CAMERA", "READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#000"
+        }
+      ],
+      "expo-font",
+      "expo-audio",
+      "expo-video",
+      "expo-build-properties",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Permitir acesso à câmera para escanear QR Codes."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permitir acesso às fotos para anexar imagens aos equipamentos.",
+          "cameraPermission": "Permitir acesso à câmera para tirar fotos dos equipamentos."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

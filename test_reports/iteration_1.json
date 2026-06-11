@@ -1,0 +1,31 @@
+{
+  "summary": "Frontend-only review (code-level) of the 8 Orcamento/Servicos/Materiais/PDF improvements for Polar Solucoes. All implementations verified by reading store.ts, orcamento/[id].tsx, components/orcamento-form.tsx and lib/pdf-generator.ts. Playwright UI sweep was NOT executed in this iteration due to context budget; recommend main agent self-test or schedule another testing iteration. Code-level verdict: implementations look correct and consistent.",
+  "backend_issues": { "critical": [], "minor": [] },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [],
+    "react_native_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "Run end-to-end Playwright sweep on the preview URL covering: (a) edit existing orcamento -> set desconto 10% -> save -> detail screen shows Subtotal/Desconto/Total without re-navigation (verifies useFocusEffect fix); (b) tap Gerar PDF and inspect window.open HTML for 'SUBTOTAL', 'DESCONTO (10%)' and 'INVESTIMENTO TOTAL'; (c) add 2+ equipamentos with tipo/marca/modelo/serie/patrimonio/local/problema/diagnostico, save, verify list on detail screen and equipment cards in PDF (renderEquipamentosLista); (d) add servico and material, tap pencil icons -> modals (testIDs servico-editar-*, edit-servico-salvar, edit-material-descricao) open and editing updates only local item, not catalog; (e) descricao tecnica (detalhes) shows in list and PDF; (f) servicos-cadastrados and estoque CRUD edit/delete still work.",
+    "Validate PDF visually for percentual vs fixo desconto wording: code shows 'DESCONTO (X%)' for percentual and just 'DESCONTO' for fixo (lib/pdf-generator.ts line ~532) -- confirm this matches user expectation that the % appears between parentheses."
+  ],
+  "critical_code_review_comments": [
+    "lib/store.ts Orcamento.equipamentos? is correctly typed as EquipamentoOS[]; EquipamentoOS now has optional tipo/patrimonio/localizacao.",
+    "app/orcamento/[id].tsx correctly switched from useEffect([id]) to useFocusEffect(useCallback(loadData, [id])) -- this fixes the stale-data-after-edit bug. Detail screen now shows Subtotal row, conditional Desconto row with (X%) when percentual, and TOTAL GERAL using orcamento.valorTotal.",
+    "components/orcamento-form.tsx: equipamentos state is loaded from orcamentoInicial.equipamentos and persisted via onSave (lines 505, 555). Service and Material edit modals are real Modals (not dead buttons) with proper testIDs (edit-servico-*, edit-material-*). They mutate ONLY the local itens/materiais arrays via setItens/setMateriais and never call catalog APIs (saveServicoCadastrado / saveProduto) -- requirement met.",
+    "novo-servico-detalhes and novo-material-detalhes multilinha inputs feed item.detalhes which is persisted, rendered in the detail screen (text-muted text-xs below descricao) and in the PDF via renderTabelaServicos/Materiais (small grey 10px text under descricao).",
+    "lib/pdf-generator.ts generateOrcamentoPDF passes equipamentosLista when any equipamento has tipo/marca/modelo/problema/diagnostico; renderEquipamentosLista builds full cards (tipo title, marca/modelo/serie grid, conditional patrimonio/localizacao, problema in amarelo block, diagnostico in verde block). Desconto: passes desconto + valorSubtotal + valorDesconto so renderInvestimentoTotal shows the subtotal -> desconto -> total breakdown correctly.",
+    "Web PDF path (Platform.OS === 'web') uses window.open + document.write + print -- this is the path the preview will exercise; no Sharing.shareAsync invoked on web (correct).",
+    "Minor: orcamento-form.tsx file is ~1700 lines and would benefit from splitting (EquipamentosSection, MateriaisSection, ServicosSection, Modal components) but not blocking."
+  ],
+  "updated_files": [],
+  "success_rate": { "backend": "n/a", "frontend": "code-review only" },
+  "seed_data_creation": "None",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Run Playwright on preview URL https://budget-fix-9.preview.emergentagent.com. Seed an Orcamento first (via /orcamento/novo -> select cliente -> add 1 servico + 1 material + 2 equipamentos -> save). Then test the 6 flows in action_items. For PDF assertion on web, after clicking 'Gerar PDF', grab the latest BrowserContext.pages() and assert innerHTML contains 'SUBTOTAL', 'DESCONTO', '%)' for percentual and the equipamentos tipo strings. testIDs to use: orcamento-edit-btn, orcamento-pdf-btn, add-equipamento-btn, equip-tipo-*, equip-marca-*, equip-modelo-*, equip-serie-*, equip-patrimonio-*, equip-local-*, equip-problema-*, equip-diagnostico-*, servico-editar-*, edit-servico-descricao/detalhes/valor/quantidade/salvar, edit-material-descricao/detalhes/quantidade/salvar, novo-servico-detalhes, novo-material-detalhes.",
+  "rca_of_issue": "Original discount-not-in-PDF bug RCA: detail screen used useEffect([id]) so when user went to editar screen and came back, stale orcamento (without new desconto) was still in state and was passed to generateOrcamentoPDF. Fix: useFocusEffect re-runs loadData on every focus, so after editing the just-saved orcamento (with desconto) is fetched from AsyncStorage and used by the PDF call."
+}
