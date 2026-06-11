@@ -1540,7 +1540,7 @@ export function OrcamentoForm({
         >
           <Pressable
             onPress={(e) => e.stopPropagation()}
-            paddingBottom: 18 + insets.bottom,
+            style={{ backgroundColor: colors.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 18, paddingBottom: 18 + insets.bottom, maxHeight: "90%" }}
           >
             <ScrollView keyboardShouldPersistTaps="handled">
               <Text style={{ color: colors.foreground, fontWeight: "900", fontSize: 16, marginBottom: 14 }}>Editar Material</Text>
