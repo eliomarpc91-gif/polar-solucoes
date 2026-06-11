@@ -28,6 +28,12 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: gradle-${{ hashFiles('**/*.gradle*') }}
+      - name: Instalar imagemagick
+        run: sudo apt-get update && sudo apt-get install -y imagemagick
+      - name: Limpar metadados dos PNGs
+        run: |
+          find assets -name "*.png" -exec mogrify -strip {} \; 2>/dev/null || true
+          find assets -name "*.png" -exec sh -c 'convert "$1" "$1.tmp" && mv "$1.tmp" "$1"' _ {} \; 2>/dev/null || true
       - name: Permissao scripts
         run: chmod +x scripts/*.js || true
       - name: Instalar dependencias
@@ -42,11 +48,15 @@ jobs:
             --dev false \
             --bundle-output android/app/src/main/assets/index.android.bundle \
             --assets-dest android/app/src/main/res
+      - name: Re-limpar PNGs gerados
+        run: |
+          find android/app/src/main/res -name "*.png" -exec mogrify -strip {} \; 2>/dev/null || true
+          find android/app/build/generated -name "*.png" -exec mogrify -strip {} \; 2>/dev/null || true
       - name: Permissao gradlew
         run: chmod +x android/gradlew
       - name: Compilar APK Release
         working-directory: frontend/android
-        run: ./gradlew assembleRelease --no-daemon --stacktrace
+        run: ./gradlew assembleRelease --no-daemon --stacktrace -Pandroid.enablePngCrunchInReleaseBuilds=false
       - name: Renomear APK
         working-directory: frontend/android/app/build/outputs/apk/release
         run: |
