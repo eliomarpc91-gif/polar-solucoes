@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ScrollView, Text, View, TextInput, Pressable, Alert, KeyboardAvoidingView, Platform, Modal } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useColors } from "@/hooks/use-colors";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   getClientes,
   getEmpresa,
@@ -167,6 +168,7 @@ export function OrcamentoForm({
   numero,
 }: OrcamentoFormProps) {
   const colors = useColors();
+  const insets = useSafeAreaInsets();
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [clienteSelecionado, setClienteSelecionado] = useState<Cliente | null>(null);
   const [searchCliente, setSearchCliente] = useState("");
@@ -1457,7 +1459,7 @@ export function OrcamentoForm({
         >
           <Pressable
             onPress={(e) => e.stopPropagation()}
-            style={{ backgroundColor: colors.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 18, maxHeight: "90%" }}
+            style={{ backgroundColor: colors.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 18, paddingBottom: 18 + insets.bottom, maxHeight: "90%" }}
           >
             <ScrollView keyboardShouldPersistTaps="handled">
               <Text style={{ color: colors.foreground, fontWeight: "900", fontSize: 16, marginBottom: 14 }}>Editar Serviço</Text>
@@ -1538,7 +1540,7 @@ export function OrcamentoForm({
         >
           <Pressable
             onPress={(e) => e.stopPropagation()}
-            style={{ backgroundColor: colors.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 18, maxHeight: "90%" }}
+            paddingBottom: 18 + insets.bottom,
           >
             <ScrollView keyboardShouldPersistTaps="handled">
               <Text style={{ color: colors.foreground, fontWeight: "900", fontSize: 16, marginBottom: 14 }}>Editar Material</Text>
