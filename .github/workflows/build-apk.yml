@@ -34,16 +34,26 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Expo prebuild
         run: npx expo prebuild --platform android --no-install --clean
+      - name: Bundle JavaScript
+        run: |
+          mkdir -p android/app/src/main/assets
+          npx expo export:embed \
+            --platform android \
+            --dev false \
+            --bundle-output android/app/src/main/assets/index.android.bundle \
+            --assets-dest android/app/src/main/res
       - name: Permissao gradlew
         run: chmod +x android/gradlew
-      - name: Compilar APK
+      - name: Compilar APK Release
         working-directory: frontend/android
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        run: ./gradlew assembleRelease --no-daemon --stacktrace
       - name: Renomear APK
-        working-directory: frontend/android/app/build/outputs/apk/debug
-        run: mv app-debug.apk polar-solucoes-${{ github.run_number }}.apk
+        working-directory: frontend/android/app/build/outputs/apk/release
+        run: |
+          ls -la
+          mv app-release.apk polar-solucoes-${{ github.run_number }}.apk
       - uses: actions/upload-artifact@v4
         with:
           name: polar-solucoes-apk
-          path: frontend/android/app/build/outputs/apk/debug/polar-solucoes-*.apk
+          path: frontend/android/app/build/outputs/apk/release/polar-solucoes-*.apk
           retention-days: 30
